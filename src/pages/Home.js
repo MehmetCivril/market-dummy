@@ -1,5 +1,5 @@
-import axios from "axios"
 import React, { useEffect, useState } from "react"
+import axios from "axios"
 
 function Home() {
   const [data, setData] = useState([]) //[] koymazsan map çalışmaz. Map'e && eklersen çalışır. Bu ikisini aynı anda da kullanabilirsin.
@@ -11,7 +11,7 @@ function Home() {
   const getProducts = async () => {
     try {
       let response = await axios.get("http://localhost:9000/product/products")
-      //console.log(response.data)
+      setData(response.data.data)
     } catch (error) {
       console.log("Get All Products Error", error)
     }
@@ -20,7 +20,9 @@ function Home() {
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
       {data &&
         data.map((product, key) => (
-          <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <div
+            key={key}
+            className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <a href="#">
               <img
                 className="p-8 rounded-t-lg"
