@@ -1,56 +1,118 @@
 import React, { useState } from "react"
 import { Button, TextField } from "@mui/material"
 import axios from "axios"
+import SendIcon from "@mui/icons-material/Send"
+import { Formik } from "formik"
+import * as Yup from "yup"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
+import bg from "../assets/images/login-bg.jpg"
 
+// Yup ile login formunda gerekli olan validationlar hazırladık.
+const loginSchema = Yup.object().shape({
+  username: Yup.string()
+    .required("Username is required")
+    .min(3, "Username is too short!")
+    .max(20, "Username is too long!"),
+  password: Yup.string()
+    .required("Password is required")
+    .min(2, "Password is too short!"),
+})
+
+// Formik ile login formunu hazırladık.
 function Login() {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-
-  console.log(username)
-
-  const handleLogin = async () => {
+  // navigate hooku react-router-dom'daki useNavigate fonksiyonunu kullanarak sayfa değiştirme işlemlerini yapacağız.
+  const navigate = useNavigate()
+  const handleLogin = async (loginOject) => {
     try {
-      //key (sol) backend value (sağ) frontu temsil ediyor
-      let requestObj = {
-        username: username,
-        password: password,
-      }
-      //backend bizden post istediği için
       let response = await axios.post(
         "http://localhost:9000/user/login",
-        requestObj
+        loginOject
       )
       console.log(response.data)
+
+      // Giriş başarılıysa "/" sayfasına yönlendirdik.
+      if (response.data.status) {
+        // Toastify ile success mesajı gösterdik.
+        toast.success(response.data.message)
+        navigate("/")
+      }
     } catch (error) {
-      console.log("Login Error", error)
+      toast.error(error.response.data.message)
+      console.log("Login Error", error.response.data.message)
     }
   }
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <div>
-        <div>
-          <TextField
-            variant="standard"
-            label="Username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-          />
-        </div>
-        <div className="my-4">
-          <TextField
-            variant="standard"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <Button variant="outlined" onClick={handleLogin}>
-            Login
-          </Button>
-        </div>
+    <div
+      className="flex justify-center items-center h-screen"
+      style={{
+        backgroundImage: `url( ${bg})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+      }}>
+      <div
+        style={{ minWidth: "300px" }}
+        className="border-gray-300 border-2 p-6 rounded-lg bg-gray-300 bg-opacity-30">
+        <Formik
+          initialValues={{ username: "", password: "" }}
+          onSubmit={(value) => handleLogin(value)}
+          validationSchema={loginSchema}>
+          {({
+            values,
+            handleChange,
+            handleSubmit,
+            handleBlur,
+            errors,
+            touched,
+          }) => (
+            <>
+              <div>
+                <TextField
+                  variant="standard"
+                  label="Username"
+                  fullWidth
+                  value={values.username}
+                  onChange={handleChange("username")}
+                  onBlur={handleBlur("username")}
+                  error={touched.username && Boolean(errors.username)}
+                  // username inputu içinde en az 3 karakter ve en fazla 20 karakter olması gerekiyor.
+                  helperText={touched.username && errors.username}
+                />
+              </div>
+              <div className="my-4">
+                <TextField
+                  variant="standard"
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  value={values.password}
+                  onChange={handleChange("password")}
+                  onBlur={handleBlur("password")}
+                  error={touched.password && Boolean(errors.password)}
+                  // password inputu içinde en az 2 karakter ve en fazla 20 karakter olması gerekiyor.
+                  helperText={touched.password && errors.password}
+                />
+              </div>
+              <span className="my-3 text-sm">
+                Don't have an account?
+                <Link to="/register" className="underline text-blue-800 ml-1">
+                  Create Now!
+                </Link>
+              </span>
+              <div className="flex justify-center mt-3">
+                <Button
+                  variant="outlined"
+                  onClick={handleSubmit}
+                  type="submit"
+                  endIcon={<SendIcon />}>
+                  Login
+                </Button>
+              </div>
+            </>
+          )}
+        </Formik>
       </div>
     </div>
   )
