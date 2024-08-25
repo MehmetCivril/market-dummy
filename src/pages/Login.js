@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Button, TextField } from "@mui/material"
+import { Button, InputAdornment, TextField } from "@mui/material"
 import axios from "axios"
 import SendIcon from "@mui/icons-material/Send"
 import { Formik } from "formik"
@@ -7,6 +7,7 @@ import * as Yup from "yup"
 import { Link, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import bg from "../assets/images/login-bg.jpg"
+import { Visibility, VisibilityOff } from "@mui/icons-material"
 
 // Yup ile login formunda gerekli olan validationlar hazırladık.
 const loginSchema = Yup.object().shape({
@@ -23,6 +24,9 @@ const loginSchema = Yup.object().shape({
 function Login() {
   // navigate hooku react-router-dom'daki useNavigate fonksiyonunu kullanarak sayfa değiştirme işlemlerini yapacağız.
   const navigate = useNavigate()
+
+  const [isShow, setIsShow] = useState(false)
+
   const handleLogin = async (loginOject) => {
     try {
       let response = await axios.post(
@@ -85,14 +89,34 @@ function Login() {
                 <TextField
                   variant="standard"
                   label="Password"
-                  type="password"
+                  type={isShow ? "text" : "password"}
                   fullWidth
                   value={values.password}
                   onChange={handleChange("password")}
                   onBlur={handleBlur("password")}
                   error={touched.password && Boolean(errors.password)}
-                  // password inputu içinde en az 2 karakter ve en fazla 20 karakter olması gerekiyor.
                   helperText={touched.password && errors.password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment
+                        position="end"
+                        onClick={() => setIsShow(!isShow)}>
+                        {isShow ? <VisibilityOff /> : <Visibility />}
+
+                        {/* {isShow ? (
+                          <VisibilityOff onClick={() => setIsShow(!isShow)} />
+                        ) : (
+                          <Visibility onClick={() => setIsShow(!isShow)} />
+                        )} */}
+
+                        {/* {isShow ? (
+                          <VisibilityOff onClick={() => setIsShow(false)} />
+                        ) : (
+                          <Visibility onClick={() => setIsShow(true)} />
+                        )} */}
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </div>
               <span className="my-3 text-sm">

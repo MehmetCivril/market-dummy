@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Button, TextField } from "@mui/material"
+import { Button, InputAdornment, TextField } from "@mui/material"
 import axios from "axios"
 import SendIcon from "@mui/icons-material/Send"
 import { Formik } from "formik"
@@ -7,6 +7,7 @@ import * as Yup from "yup"
 import { Link, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import bg from "../assets/images/login-bg.jpg"
+import { Visibility, VisibilityOff } from "@mui/icons-material"
 
 // Yup ile login formunda gerekli olan validationlar hazırladık.
 const RegisterSchema = Yup.object().shape({
@@ -29,19 +30,23 @@ const RegisterSchema = Yup.object().shape({
 function Register() {
   // navigate hooku react-router-dom'daki useNavigate fonksiyonunu kullanarak sayfa değiştirme işlemlerini yapacağız.
   const navigate = useNavigate()
+
+  const [isShow, setIsShow] = useState(false)
+
   const handleRegister = async (registerObject) => {
     try {
+      delete registerObject["passwordConfirm"]
       let response = await axios.post(
         "http://localhost:9000/user/register",
         registerObject
       )
       console.log(response.data)
 
-      // Giriş başarılıysa "/" sayfasına yönlendirdik.
+      // Giriş başarılıysa "/login" sayfasına yönlendirdik.
       if (response.data.status) {
         // Toastify ile success mesajı gösterdik.
         toast.success(response.data.message)
-        navigate("/")
+        navigate("/login")
       }
     } catch (error) {
       toast.error(error.response.data.message)
@@ -89,7 +94,6 @@ function Register() {
                   onChange={handleChange("username")}
                   onBlur={handleBlur("username")}
                   error={touched.username && Boolean(errors.username)}
-                  // username inputu içinde en az 3 karakter ve en fazla 20 karakter olması gerekiyor.
                   helperText={touched.username && errors.username}
                 />
               </div>
@@ -110,22 +114,30 @@ function Register() {
                 <TextField
                   variant="standard"
                   label="Password"
-                  type="password"
+                  type={isShow ? "text" : "password"}
                   fullWidth
                   required
                   value={values.password}
                   onChange={handleChange("password")}
                   onBlur={handleBlur("password")}
                   error={touched.password && Boolean(errors.password)}
-                  // password inputu içinde en az 2 karakter ve en fazla 20 karakter olması gerekiyor.
                   helperText={touched.password && errors.password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment
+                        position="end"
+                        onClick={() => setIsShow(!isShow)}>
+                        {isShow ? <VisibilityOff /> : <Visibility />}
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </div>
               <div className="my-2">
                 <TextField
                   variant="standard"
                   label="Password Confirm"
-                  type="password"
+                  type={isShow ? "text" : "password"}
                   fullWidth
                   required
                   value={values.passwordConfirm}
@@ -135,6 +147,15 @@ function Register() {
                     touched.passwordConfirm && Boolean(errors.passwordConfirm)
                   }
                   helperText={touched.passwordConfirm && errors.passwordConfirm}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment
+                        position="end"
+                        onClick={() => setIsShow(!isShow)}>
+                        {isShow ? <VisibilityOff /> : <Visibility />}
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </div>
               <span className="my-3 text-sm">
