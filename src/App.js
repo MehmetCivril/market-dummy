@@ -3,13 +3,15 @@ import Home from "./pages/Home"
 import router from "./router"
 import "react-toastify/dist/ReactToastify.css"
 import { ToastContainer } from "react-toastify"
+import { Provider } from "react-redux"
+import { store } from "./store/store"
 
 function App() {
   return (
-    <>
+    <Provider store={store}>
       <RouterProvider router={router} />
       <ToastContainer position="top-right" autoClose="4000" theme="colored" />
-    </>
+    </Provider>
   )
 }
 
