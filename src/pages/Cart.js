@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import Table from "@mui/material/Table"
 import TableBody from "@mui/material/TableBody"
@@ -9,11 +9,35 @@ import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
 import { Button } from "@mui/material"
 import { DeleteForeverOutlined } from "@mui/icons-material"
-import { clearCart } from "../store/slices/cartSlice"
+import { clearCart, removeItem } from "../store/slices/cartSlice"
+import YesNoModal from "../components/YesNoModal"
+import { toast } from "react-toastify"
 
 function Cart() {
   const { products } = useSelector((state) => state.cart)
   const dispatch = useDispatch()
+
+  const [isShowModal, setIsShowModal] = useState(false)
+  const [isShowModalAll, setIsShowModalAll] = useState(false) // çoklu silim modal için usestate yazıyoruz
+
+  const [productID, setProductID] = useState("") //elimizde id olmadığı için bunu eşitlemek için usestate kullanıyoruz
+
+  const removeItemFromComponent = async (id) => {
+    setIsShowModal(true)
+    setProductID(id) // removeitem ile gelen id'yi productID'ye eşitliyoruz
+  }
+
+  const onClickYes = () => {
+    setIsShowModal(false) // ürün silindikten sonra kutunun kapanmasını sağlıyor
+    dispatch(removeItem(productID)) //artık id'miz buna eşitlendiği için bu fonk. kullanabiliriz. Ama bi itemden 3 tane eklersen 3'ünü de siliyor :(
+    toast.success("Product Removed!")
+  }
+  //removecart için yeni bir onclick yazmış olduk
+  const onClickYesAll = () => {
+    setIsShowModalAll(false) //
+    dispatch(clearCart()) // bütün ürünleri silmek için clearCart fonk. kullanılabilir
+    toast.success("All Products Removed!")
+  }
 
   return (
     <>
@@ -24,6 +48,7 @@ function Cart() {
               <TableCell>Image</TableCell>
               <TableCell>Product Name</TableCell>
               <TableCell>Price</TableCell>
+              <TableCell>Quantity</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -40,9 +65,14 @@ function Cart() {
                   />
                 </TableCell>
                 <TableCell>{product.productName}</TableCell>
-                    <TableCell>{product.price}</TableCell>
-                    <TableCell><DeleteForeverOutlined color="error"/></TableCell>
-
+                <TableCell>{product.price}</TableCell>
+                <TableCell>{product.cartQuantity}</TableCell>
+                <TableCell>
+                  <DeleteForeverOutlined
+                    color="error"
+                    onClick={() => removeItemFromComponent(product._id)}
+                  />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -50,13 +80,31 @@ function Cart() {
       </TableContainer>
       <div className="flex justify-end m-4">
         <Button
-          onClick={() => dispatch(clearCart())}
+          onClick={() => setIsShowModalAll(true)} //clearcart fonksiyonu için
           color="error"
           variant="contained"
           startIcon={<DeleteForeverOutlined />}>
           Clear Cart!
         </Button>
       </div>
+
+      {/* Tek tek silim için kullanılan modal */}
+      <YesNoModal
+        isShowModal={isShowModal}
+        setIsShowModal={setIsShowModal}
+        title="Remove From Cart"
+        desc="Would you like to remove the item from cart?"
+        onClickYes={onClickYes}
+      />
+
+      {/* çoklu silim remove cart için kullanılan modal */}
+      <YesNoModal
+        isShowModal={isShowModalAll}
+        setIsShowModal={setIsShowModalAll}
+        title="Clear Cart"
+        desc="Would you like to clear the cart?"
+        onClickYes={onClickYesAll}
+      />
     </>
   )
 }
