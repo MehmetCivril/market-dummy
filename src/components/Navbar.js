@@ -22,11 +22,14 @@ const settings = ["Profile", "Logout"]
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function Navbar() {
+  // React Router'dan gelen `useNavigate` hook'u ile sayfa yönlendirmesi yapmak için kullanılır.
   const navigate = useNavigate()
-
+  // Redux store'dan `cart` dilimindeki `cartNumber` değerini almak için kullanılır.
   const { cartNumber } = useSelector((state) => state.cart)
-  console.log(cartNumber)
+  // Redux store'dan `user` dilimindeki `email` ve `username` değerlerini almak için kullanılır.
+  const { user, username } = useSelector((state) => state.user)
 
+  // Nav menü açıldığında menüyü kapatmak için gerekli state'ler.
   const [anchorElNav, setAnchorElNav] = React.useState(null)
   const [anchorElUser, setAnchorElUser] = React.useState(null)
 
@@ -136,11 +139,17 @@ function Navbar() {
                 <ShoppingCartOutlinedIcon />
               </Badge>
             </IconButton>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
+            {user ? (
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt={username} src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+            ) : 
+              <Link to="/login" className="bg-green-400 p-2 hover:bg-green-600 rounded-md">
+                Login
+              </Link>
+            }
             <Menu
               sx={{ mt: "45px" }}
               id="menu-appbar"

@@ -9,6 +9,8 @@ import { toast } from "react-toastify"
 import bg from "../assets/images/login-bg.jpg"
 import { Visibility, VisibilityOff } from "@mui/icons-material"
 import { jwtDecode } from "jwt-decode"
+import { useDispatch } from "react-redux"
+import { handleLogin } from "../store/slices/userSlice"
 
 // Yup ile login formunda gerekli olan validationlar hazırladık.
 const loginSchema = Yup.object().shape({
@@ -25,10 +27,11 @@ const loginSchema = Yup.object().shape({
 function Login() {
   // navigate hooku react-router-dom'daki useNavigate fonksiyonunu kullanarak sayfa değiştirme işlemlerini yapacağız.
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const [isShow, setIsShow] = useState(false)
 
-  const handleLogin = async (loginOject) => {
+  const setLogin = async (loginOject) => {
     try {
       let response = await axios.post(
         "http://localhost:9000/user/login",
@@ -41,6 +44,9 @@ function Login() {
         toast.success(response.data.message)
         // Access token'ı local storage'a kaydettik.
         localStorage.setItem("access_token", response.data.access_token)
+        // Access token'ı decode ederek user bilgilerini aldık.
+        dispatch(handleLogin(response.data.user))
+        // Giriş yaptığımızda "/" sayfasına yönlendirdik.
         navigate("/")
       }
     } catch (error) {
@@ -63,7 +69,7 @@ function Login() {
         className="border-gray-300 border-2 p-6 rounded-lg bg-gray-300 bg-opacity-30">
         <Formik
           initialValues={{ username: "", password: "" }}
-          onSubmit={(value) => handleLogin(value)}
+          onSubmit={(value) => setLogin(value)}
           validationSchema={loginSchema}>
           {({
             values,
