@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import bg from "../assets/images/login-bg.jpg"
 import { Visibility, VisibilityOff } from "@mui/icons-material"
+import { jwtDecode } from "jwt-decode"
 
 // Yup ile login formunda gerekli olan validationlar hazırladık.
 const loginSchema = Yup.object().shape({
@@ -33,12 +34,13 @@ function Login() {
         "http://localhost:9000/user/login",
         loginOject
       )
-      console.log(response.data)
 
       // Giriş başarılıysa "/" sayfasına yönlendirdik.
       if (response.data.status) {
         // Toastify ile success mesajı gösterdik.
         toast.success(response.data.message)
+        // Access token'ı local storage'a kaydettik.
+        localStorage.setItem("access_token", response.data.access_token)
         navigate("/")
       }
     } catch (error) {
