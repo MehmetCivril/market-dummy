@@ -14,8 +14,9 @@ import MenuItem from "@mui/material/MenuItem"
 import AdbIcon from "@mui/icons-material/Adb"
 import { Badge } from "@mui/material"
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { Link, useNavigate } from "react-router-dom"
+import { handleLogout } from "../store/slices/userSlice"
 
 const pages = ["Products", "Blog", "Cart"]
 const settings = ["Profile", "Logout"]
@@ -24,6 +25,8 @@ const settings = ["Profile", "Logout"]
 function Navbar() {
   // React Router'dan gelen `useNavigate` hook'u ile sayfa yönlendirmesi yapmak için kullanılır.
   const navigate = useNavigate()
+
+  const dispatch = useDispatch()
   // Redux store'dan `cart` dilimindeki `cartNumber` değerini almak için kullanılır.
   const { cartNumber } = useSelector((state) => state.cart)
   // Redux store'dan `user` dilimindeki `email` ve `username` değerlerini almak için kullanılır.
@@ -46,6 +49,11 @@ function Navbar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null)
+  }
+
+  const setLogout = () => {
+    dispatch(handleLogout())
+    handleCloseUserMenu()
   }
 
   return (
@@ -142,14 +150,19 @@ function Navbar() {
             {user ? (
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt={username} src="/static/images/avatar/2.jpg" />
+                  <Avatar
+                    alt={username.toUpperCase()}
+                    src="/static/images/avatar/2.jpg"
+                  />
                 </IconButton>
               </Tooltip>
-            ) : 
-              <Link to="/login" className="bg-green-400 p-2 hover:bg-green-600 rounded-md">
+            ) : (
+              <Link
+                to="/login"
+                className="bg-green-400 p-2 hover:bg-green-600 rounded-md">
                 Login
               </Link>
-            }
+            )}
             <Menu
               sx={{ mt: "45px" }}
               id="menu-appbar"
@@ -165,11 +178,12 @@ function Navbar() {
               }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}>
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem>
+                <Typography textAlign="center">Profile</Typography>
+              </MenuItem>
+              <MenuItem onClick={setLogout}>
+                <Typography textAlign="center">Logout</Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>

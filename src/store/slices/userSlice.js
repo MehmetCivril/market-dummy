@@ -14,9 +14,10 @@ export const userSlice = createSlice({
         state.user = true
     },
     handleLogout: (state) => {
-        state.email = ""
-        state.username = ""
-        state.user = false
+      state.email = ""
+      state.username = ""
+      state.user = false
+      localStorage.removeItem("access_token")
     },
   },
 })

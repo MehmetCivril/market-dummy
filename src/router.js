@@ -6,6 +6,7 @@ import Error404 from "./pages/Error404"
 import Cart from "./pages/Cart"
 import LayoutWithNavbar from "./layouts/LayoutWithNavbar"
 import LayoutWithoutNavbar from "./layouts/LayoutWithoutNavbar"
+import Profile from "./pages/Profile"
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
       {
         path: "/cart",
         element: <Cart />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
     ],
   },
